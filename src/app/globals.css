@@ -1,0 +1,226 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===================================================================
+   DESIGN TOKENS
+   RGB triplets (not hex) so Tailwind's <alpha-value> opacity works.
+   =================================================================== */
+
+:root {
+  /* Surfaces */
+  --bg-primary: 6 6 8;        /* #060608 */
+  --bg-secondary: 14 14 17;   /* #0E0E11 */
+  --bg-tertiary: 20 20 24;    /* #141418 */
+
+  /* Text */
+  --text-primary: 245 245 247;
+  --text-secondary: 165 165 175;
+  --text-tertiary: 110 110 120;
+
+  /* Signature accent — restrained ion-blue, used sparingly */
+  --accent: 79 140 255;       /* #4F8CFF */
+  --accent-soft: 124 219 255; /* #7CDBFF */
+
+  /* Glass material */
+  --glass-fill: 255 255 255;
+  --glass-fill-opacity: 0.055;
+  --glass-border: 255 255 255;
+  --glass-border-opacity: 0.12;
+  --glass-highlight: 255 255 255;
+
+  --line: 255 255 255;
+  --line-opacity: 0.08;
+
+  color-scheme: dark;
+}
+
+:root.light {
+  --bg-primary: 250 250 251;
+  --bg-secondary: 244 244 246;
+  --bg-tertiary: 237 237 240;
+
+  --text-primary: 15 15 18;
+  --text-secondary: 90 90 100;
+  --text-tertiary: 140 140 150;
+
+  --accent: 40 100 240;
+  --accent-soft: 60 150 235;
+
+  --glass-fill: 255 255 255;
+  --glass-fill-opacity: 0.55;
+  --glass-border: 10 10 20;
+  --glass-border-opacity: 0.08;
+  --glass-highlight: 255 255 255;
+
+  --line: 10 10 20;
+  --line-opacity: 0.07;
+
+  color-scheme: light;
+}
+
+/* ===================================================================
+   BASE
+   =================================================================== */
+
+@layer base {
+  * {
+    @apply border-line/[var(--line-opacity)];
+  }
+
+  html {
+    @apply scroll-smooth;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-bg-primary text-text-primary font-sans antialiased;
+    font-feature-settings: "cv11", "ss01", "cv01";
+    transition: background-color 0.4s ease, color 0.4s ease;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+    font-feature-settings: "cv11", "ss01", "cv01", "ss03";
+  }
+
+  /* Numeric content (years, tags, stats) reads as data, not prose. */
+  .font-mono,
+  time {
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::selection {
+    background: rgb(var(--accent) / 0.35);
+    color: rgb(var(--text-primary));
+  }
+
+  /* Visible, deliberate focus states — never removed */
+  :focus-visible {
+    outline: 2px solid rgb(var(--accent));
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--text-tertiary) / 0.4);
+    border-radius: 999px;
+    border: 2px solid rgb(var(--bg-primary));
+  }
+
+  .skip-link {
+    position: fixed;
+    top: -100%;
+    left: 1.5rem;
+    z-index: 200;
+    padding: 0.75rem 1.25rem;
+    border-radius: 999px;
+    background: rgb(var(--text-primary));
+    color: rgb(var(--bg-primary));
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: top 0.25s ease;
+  }
+
+  .skip-link:focus {
+    top: 1.25rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  @media (prefers-contrast: more) {
+    :root {
+      --glass-fill-opacity: 0.92;
+      --glass-border-opacity: 0.4;
+    }
+  }
+}
+
+/* ===================================================================
+   GLASS MATERIAL — the core Liquid Glass primitive styling
+   =================================================================== */
+
+@layer components {
+  .glass-surface {
+    background-color: rgb(var(--glass-fill) / var(--glass-fill-opacity));
+    border: 1px solid rgb(var(--glass-border) / var(--glass-border-opacity));
+    position: relative;
+  }
+
+  .glass-surface::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      180deg,
+      rgb(var(--glass-highlight) / 0.16) 0%,
+      rgb(var(--glass-highlight) / 0) 45%
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .container-content {
+    @apply mx-auto w-full max-w-content px-6 sm:px-8 lg:px-16;
+  }
+
+  /* Mouse-reactive highlight — the "light catching real glass" effect.
+     Position is driven by --spot-x/--spot-y, set via JS in GlassPanel and
+     CursorSpotlight. Pure CSS otherwise, so it's cheap to animate. */
+  .glass-spotlight {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    background: radial-gradient(
+      480px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+      rgb(var(--glass-highlight) / 0.14),
+      transparent 70%
+    );
+    pointer-events: none;
+  }
+
+  .glass-spotlight[data-active="true"] {
+    opacity: 1;
+  }
+
+  /* Render cost deferral for long below-the-fold sections. */
+  .cv-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 800px;
+  }
+
+  @media (max-width: 640px) {
+    .blur-3xl {
+      --tw-blur: blur(48px);
+    }
+  }
+}
