@@ -91,10 +91,13 @@ export function GlassSelect({
       case "Enter":
       case " ":
         event.preventDefault();
-        if (highlightedIndex >= 0) {
-          onChange(options[highlightedIndex].value);
-          setIsOpen(false);
-        }
+      if (
+    highlightedIndex >= 0 &&
+    highlightedIndex < options.length
+) {
+    onChange(options[highlightedIndex]!.value);
+    setIsOpen(false);
+}
         break;
       case "Escape":
         event.preventDefault();
