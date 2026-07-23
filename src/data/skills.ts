@@ -59,7 +59,7 @@ export const skillGroups: SkillGroup[] = [
     ],
   },
   {
-    category: "CS Fundamentals",
+    category: "Programming",
     description: "The foundation that makes everything else work.",
     skills: [
       { name: "Data Structures & Algorithms", icon: Cpu, color: "#4F8CFF", proficiency: 60, yearsOfExperience: 2 },
